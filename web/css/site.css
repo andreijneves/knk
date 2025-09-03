@@ -1,0 +1,52 @@
+.hero-banner {
+background-color: #e9ecef;
+padding: 80px 0;
+text-align: center;
+}
+.hero-title {
+font-size: 2.5rem;
+margin-bottom: 15px;
+}
+.hero-subtitle {
+font-size: 1.2rem;
+color: #6c757d;
+margin-bottom: 30px;
+}
+.main-content-bg {
+background-color: #ffffff;
+padding: 60px 0;
+}
+.services-area {
+background-color: #f8f9fa;
+padding: 60px 0;
+}
+
+
+.social-media-area {
+background-color: #fff;
+padding: 40px 0;
+}
+.social-icon {
+font-size: 2.5rem;
+color: #495057;
+margin: 0 15px;
+transition: color 0.3s ease;
+}
+.social-icon:hover {
+color: #000;
+}
+.contact-area {
+background-color: #f1f3f5;
+padding: 60px 0;
+}
+
+.contact-image {
+width: 80%;
+height: auto;
+border-radius: 8px;
+}
+.footer-bg {
+background-color: #343a40;
+color: #fff;
+padding: 30px 0;
+}
