@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\web\UploadedFile;
+use app\models\Foto;
 
 /**
  * This is the model class for table "produto".
@@ -12,7 +14,7 @@ use Yii;
  * @property string $des
  * @property float $preco
  *
- * @property Foto[] $fotos
+ * @property Foto[] $foto
  * @property Pedido[] $pedidos
  */
 class Produto extends \yii\db\ActiveRecord
@@ -73,5 +75,28 @@ class Produto extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Pedido::class, ['prod_id' => 'pro_id']);
     }
+   
+    public function upload()
+    {
+        if ($this->validate()) {
+            foreach ($this->foto as $file) {
+                $filePath = '/web/uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
+                if ($file->saveAs($filePath)) {
+                    // Save file information to the Foto model
+                    $fotoModel = new Foto();
+                    $fotoModel->prod_id = $this->pro_id;
+                    $fotoModel->path = $filePath;
+                    $fotoModel->save();
+                }
+            }
+            //return true;
+        } else {
+            return false;
+        }
+    }
+    
+
+
+
 
 }
