@@ -20,7 +20,7 @@ use yii\web\UploadedFile;
     <?= $form->field($model, 'preco')->textInput(['maxlength' => true]) ?>
 
 
-      <?= $form->field($model, 'foto[]')->fileInput(['multiple' => true]) ?>
+      <?= $form->field($model, 'fotos[]')->fileInput(['multiple' => true,  'accept' => 'image/*']) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

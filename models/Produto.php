@@ -14,13 +14,13 @@ use app\models\Foto;
  * @property string $des
  * @property float $preco
  *
- * @property Foto[] $foto
+ * @property Foto[] $fotos
  * @property Pedido[] $pedidos
  */
 class Produto extends \yii\db\ActiveRecord
 {
 
-
+public $fotos; // For handling multiple file uploads
     /**
      * {@inheritdoc}
      */
@@ -63,7 +63,8 @@ class Produto extends \yii\db\ActiveRecord
      */
     public function getFotos()
     {
-        return $this->hasMany(Foto::class, ['prod_id' => 'pro_id']);
+
+        return Foto::find()->where(['prod_id' => $this->pro_id])->all();
     }
 
     /**
@@ -78,20 +79,33 @@ class Produto extends \yii\db\ActiveRecord
    
     public function upload()
     {
+       
+       
         if ($this->validate()) {
-            foreach ($this->foto as $file) {
-                $filePath = '/web/uploads/' . uniqid() . '_' . $file->baseName . '.' . $file->extension;
+            ////die('validation passed1');
+            $files = glob('uploads/' . $this->pro_id . '_*');
+            foreach ($files as $file) {
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
+
+            //die('validation passed2');
+            Foto::deleteAll(['prod_id' => $this->pro_id]); // Delete existing photos for the product
+            foreach ($this->fotos as $file) {
+                $filePath = 'uploads/' . $this->pro_id . '_' . $file->baseName . '.' . $file->extension;
                 if ($file->saveAs($filePath)) {
                     // Save file information to the Foto model
                     $fotoModel = new Foto();
                     $fotoModel->prod_id = $this->pro_id;
                     $fotoModel->path = $filePath;
+                    $fotoModel->capa= 0; // Default to not cover
                     $fotoModel->save();
                 }
             }
-            //return true;
+          
         } else {
-            return false;
+            die('validation failed');
         }
     }
     

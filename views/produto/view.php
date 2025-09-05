@@ -35,6 +35,25 @@ $this->params['breadcrumbs'][] = $this->title;
             'des',
             'preco',
         ],
-    ]) ?>
+    ]); ?>
+    <h3>Fotos do produto        
+    </h3>
+    <div class="container">
+
+    <?php   
+        foreach ($model->getFotos() as $foto): ?>
+        <div class="foto-item" style="display: inline-block; margin: 10px; text-align: center;">
+            <img src="<?= Yii::getAlias('@web') . '/' . $foto->path ?>" alt="Foto do Produto" style="max-width: 150px; max-height: 150px; display: block; margin-bottom: 5px;">
+            <?php if ($foto->capa): ?>
+                <strong>Capa</strong>
+            <?php else: ?>
+                <form method="post" action="<?= \yii\helpers\Url::to(['foto/set-capa', 'id' => $foto->fot_id]) ?>">
+                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+                    <button type="submit" class="btn btn-sm btn-primary">Definir como Capa</button>
+                </form>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+    </div>
 
 </div>
