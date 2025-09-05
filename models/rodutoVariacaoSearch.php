@@ -4,12 +4,12 @@ namespace app\models;
 
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use app\models\Produto;
+use app\models\ProdutoVariacao;
 
 /**
- * ProdutoSearch represents the model behind the search form of `app\models\Produto`.
+ * rodutoVariacaoSearch represents the model behind the search form of `app\models\ProdutoVariacao`.
  */
-class ProdutoSearch extends Produto
+class rodutoVariacaoSearch extends ProdutoVariacao
 {
     /**
      * {@inheritdoc}
@@ -17,9 +17,9 @@ class ProdutoSearch extends Produto
     public function rules()
     {
         return [
-            [['ID'], 'integer'],
-            [['nome', 'descricao', 'criado_em', 'atualizado_em'], 'safe'],
-            [['preco'], 'number'],
+            [['id', 'produto_id'], 'integer'],
+            [['nome', 'valor', 'criado_em', 'atualizado_em'], 'safe'],
+            [['preco_adicional'], 'number'],
         ];
     }
 
@@ -42,7 +42,7 @@ class ProdutoSearch extends Produto
      */
     public function search($params, $formName = null)
     {
-        $query = Produto::find();
+        $query = ProdutoVariacao::find();
 
         // add conditions that should always apply here
 
@@ -60,14 +60,15 @@ class ProdutoSearch extends Produto
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'ID' => $this->ID,
-            'preco' => $this->preco,
+            'id' => $this->id,
+            'produto_id' => $this->produto_id,
+            'preco_adicional' => $this->preco_adicional,
             'criado_em' => $this->criado_em,
             'atualizado_em' => $this->atualizado_em,
         ]);
 
         $query->andFilterWhere(['like', 'nome', $this->nome])
-            ->andFilterWhere(['like', 'descricao', $this->descricao]);
+            ->andFilterWhere(['like', 'valor', $this->valor]);
 
         return $dataProvider;
     }

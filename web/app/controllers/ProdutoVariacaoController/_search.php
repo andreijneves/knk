@@ -4,26 +4,28 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
 /** @var yii\web\View $this */
-/** @var app\models\ProdutoSearch $model */
+/** @var app\models\ProdutoVariacaoSearch $model */
 /** @var yii\widgets\ActiveForm $form */
 ?>
 
-<div class="produto-search">
+<div class="produto-variacao-search">
 
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'ID') ?>
+    <?= $form->field($model, 'id') ?>
+
+    <?= $form->field($model, 'produto_id') ?>
 
     <?= $form->field($model, 'nome') ?>
 
-    <?= $form->field($model, 'descricao') ?>
+    <?= $form->field($model, 'valor') ?>
 
-    <?= $form->field($model, 'preco') ?>
+    <?= $form->field($model, 'preco_adicional') ?>
 
-    <?= $form->field($model, 'criado_em') ?>
+    <?php // echo $form->field($model, 'criado_em') ?>
 
     <?php // echo $form->field($model, 'atualizado_em') ?>
 

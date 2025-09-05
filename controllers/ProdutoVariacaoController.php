@@ -2,24 +2,27 @@
 
 namespace app\controllers;
 
-use app\models\Foto;
-use app\models\FotoSearch;
+use app\models\ProdutoVariacao;
+use app\models\rodutoVariacaoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * FotoController implements the CRUD actions for Foto model.
+ * ProdutoVariacaoController implements the CRUD actions for ProdutoVariacao model.
  */
-class FotoController extends Controller
+class ProdutoVariacaoController extends Controller
 {
+    public $idProduto = null;
     /**
      * @inheritDoc
      */
     public function behaviors()
     {
+        $this->layout = 'adm';
+        $this->enableCsrfValidation = false;
+$this->idProduto = \Yii::$app->request->get('idProduto');
 
-        $this->layout = "adm";
         return array_merge(
             parent::behaviors(),
             [
@@ -34,49 +37,51 @@ class FotoController extends Controller
     }
 
     /**
-     * Lists all Foto models.
+     * Lists all ProdutoVariacao models.
      *
      * @return string
      */
     public function actionIndex()
     {
-        $searchModel = new FotoSearch();
+        $searchModel = new rodutoVariacaoSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'idProduto' => $this->idProduto,
         ]);
     }
 
     /**
-     * Displays a single Foto model.
-     * @param int $fot_id Fot ID
+     * Displays a single ProdutoVariacao model.
+     * @param int $id ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($fot_id)
+    public function actionView($id)
     {
         return $this->render('view', [
-            'model' => $this->findModel($fot_id),
+            'model' => $this->findModel($id),
         ]);
     }
 
     /**
-     * Creates a new Foto model.
+     * Creates a new ProdutoVariacao model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return string|\yii\web\Response
      */
     public function actionCreate()
     {
-        $model = new Foto();
+        $model = new ProdutoVariacao();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'fot_id' => $model->fot_id]);
+                return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
             $model->loadDefaultValues();
+            $model->produto_id = $this->idProduto;
         }
 
         return $this->render('create', [
@@ -85,18 +90,18 @@ class FotoController extends Controller
     }
 
     /**
-     * Updates an existing Foto model.
+     * Updates an existing ProdutoVariacao model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $fot_id Fot ID
+     * @param int $id ID
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($fot_id)
+    public function actionUpdate($id)
     {
-        $model = $this->findModel($fot_id);
+        $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'fot_id' => $model->fot_id]);
+            return $this->redirect(['view', 'id' => $model->id]);
         }
 
         return $this->render('update', [
@@ -105,29 +110,29 @@ class FotoController extends Controller
     }
 
     /**
-     * Deletes an existing Foto model.
+     * Deletes an existing ProdutoVariacao model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $fot_id Fot ID
+     * @param int $id ID
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($fot_id)
+    public function actionDelete($id)
     {
-        $this->findModel($fot_id)->delete();
+        $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Foto model based on its primary key value.
+     * Finds the ProdutoVariacao model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $fot_id Fot ID
-     * @return Foto the loaded model
+     * @param int $id ID
+     * @return ProdutoVariacao the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($fot_id)
+    protected function findModel($id)
     {
-        if (($model = Foto::findOne(['fot_id' => $fot_id])) !== null) {
+        if (($model = ProdutoVariacao::findOne(['id' => $id])) !== null) {
             return $model;
         }
 

@@ -18,7 +18,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('criar Produto', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Produto', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
@@ -29,16 +29,26 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
-            'pro_id',
-            'pro_nome',
-            'des',
+            'ID',
+            'nome',
+            'descricao:ntext',
             'preco',
+            'criado_em',
+            //'atualizado_em',
             [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Produto $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'pro_id' => $model->pro_id]);
-                 }
-            ],
+    'class' => 'yii\grid\ActionColumn',
+    'template' => '{view} {update} {delete} {customButton}', // Add your custom button name here
+    'buttons' => [
+        'customButton' => function ($url, $model, $key) {
+            // $url, $model, $key are automatically passed to the callback
+            $customUrl = Url::to(['produto-variacao/index', 'idProduto' => $model->ID]);
+            return Html::a('<span>[v]</span>', $customUrl, [
+                'title' => 'Perform Custom Action',
+                'data-pjax' => '0',
+            ]);
+        },
+    ],
+]
         ],
     ]); ?>
 

@@ -7,9 +7,6 @@ use app\models\ProdutoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use app\models\UploadForm;
-use yii\web\UploadedFile;
-
 
 /**
  * ProdutoController implements the CRUD actions for Produto model.
@@ -21,12 +18,9 @@ class ProdutoController extends Controller
      */
     public function behaviors()
     {
-        $this->layout = 'adm'; // Set the layout for this controller
+        $this->enableCsrfValidation = false;
 
-        if (\Yii::$app->user->isGuest) {
-            $this->redirect(['site/login']);
-        }
-        
+        $this->layout = 'adm';
         return array_merge(
             parent::behaviors(),
             [
@@ -58,14 +52,14 @@ class ProdutoController extends Controller
 
     /**
      * Displays a single Produto model.
-     * @param int $pro_id Pro ID
+     * @param int $ID ID
      * @return string
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($pro_id)
+    public function actionView($ID)
     {
         return $this->render('view', [
-            'model' => $this->findModel($pro_id),
+            'model' => $this->findModel($ID),
         ]);
     }
 
@@ -80,11 +74,7 @@ class ProdutoController extends Controller
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
-
-                $model->fotos = UploadedFile::getInstances($model, 'foto');
-                $model->upload(); // Call the upload method to handle file saving
-                
-                return $this->redirect(['view', 'pro_id' => $model->pro_id]);
+                return $this->redirect(['view', 'ID' => $model->ID]);
             }
         } else {
             $model->loadDefaultValues();
@@ -98,25 +88,18 @@ class ProdutoController extends Controller
     /**
      * Updates an existing Produto model.
      * If update is successful, the browser will be redirected to the 'view' page.
-     * @param int $pro_id Pro ID
+     * @param int $ID ID
      * @return string|\yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($pro_id)
+    public function actionUpdate($ID)
     {
-        $model = $this->findModel($pro_id);
+        $model = $this->findModel($ID);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-          
-                $model->fotos = UploadedFile::getInstances($model, 'fotos');
-                $model->upload(); // Call the upload method to handle file saving
-            return $this->redirect(['view', 'pro_id' => $model->pro_id]);
-        }else{
-            if ($this->request->isPost) {
-                die($model->error_get_last());
-            }
+            return $this->redirect(['view', 'ID' => $model->ID]);
         }
-  
+
         return $this->render('update', [
             'model' => $model,
         ]);
@@ -125,13 +108,13 @@ class ProdutoController extends Controller
     /**
      * Deletes an existing Produto model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param int $pro_id Pro ID
+     * @param int $ID ID
      * @return \yii\web\Response
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionDelete($pro_id)
+    public function actionDelete($ID)
     {
-        $this->findModel($pro_id)->delete();
+        $this->findModel($ID)->delete();
 
         return $this->redirect(['index']);
     }
@@ -139,13 +122,13 @@ class ProdutoController extends Controller
     /**
      * Finds the Produto model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param int $pro_id Pro ID
+     * @param int $ID ID
      * @return Produto the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($pro_id)
+    protected function findModel($ID)
     {
-        if (($model = Produto::findOne(['pro_id' => $pro_id])) !== null) {
+        if (($model = Produto::findOne(['ID' => $ID])) !== null) {
             return $model;
         }
 

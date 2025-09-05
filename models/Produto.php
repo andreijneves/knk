@@ -3,24 +3,24 @@
 namespace app\models;
 
 use Yii;
-use yii\web\UploadedFile;
-use app\models\Foto;
 
 /**
  * This is the model class for table "produto".
  *
- * @property int $pro_id
- * @property string $pro_nome
- * @property string $des
+ * @property int $ID
+ * @property string $nome
+ * @property string|null $descricao
  * @property float $preco
+ * @property string|null $criado_em
+ * @property string|null $atualizado_em
  *
- * @property Foto[] $fotos
- * @property Pedido[] $pedidos
+ * @property PedidoItem[] $pedidoItems
+ * @property ProdutoVariacao[] $produtoVariacaos
  */
 class Produto extends \yii\db\ActiveRecord
 {
 
-public $fotos; // For handling multiple file uploads
+
     /**
      * {@inheritdoc}
      */
@@ -35,11 +35,12 @@ public $fotos; // For handling multiple file uploads
     public function rules()
     {
         return [
-            [['preco'], 'default', 'value' => 0.00],
-            [['pro_nome', 'des'], 'required'],
+            [['descricao'], 'default', 'value' => null],
+            [['nome', 'preco'], 'required'],
+            [['descricao'], 'string'],
             [['preco'], 'number'],
-            [['pro_nome'], 'string', 'max' => 100],
-            [['des'], 'string', 'max' => 255],
+            [['criado_em', 'atualizado_em'], 'safe'],
+            [['nome'], 'string', 'max' => 255],
         ];
     }
 
@@ -49,68 +50,33 @@ public $fotos; // For handling multiple file uploads
     public function attributeLabels()
     {
         return [
-            'pro_id' => 'Pro ID',
-            'pro_nome' => 'Pro Nome',
-            'des' => 'descrição',
-            'preco' => 'preço',
+            'ID' => 'ID',
+            'nome' => 'Nome',
+            'descricao' => 'Descricao',
+            'preco' => 'Preco',
+            'criado_em' => 'Criado Em',
+            'atualizado_em' => 'Atualizado Em',
         ];
     }
 
     /**
-     * Gets query for [[Fotos]].
+     * Gets query for [[PedidoItems]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFotos()
+    public function getPedidoItems()
     {
-
-        return Foto::find()->where(['prod_id' => $this->pro_id])->all();
+        return $this->hasMany(PedidoItem::class, ['produto_id' => 'ID']);
     }
 
     /**
-     * Gets query for [[Pedidos]].
+     * Gets query for [[ProdutoVariacaos]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getPedidos()
+    public function getProdutoVariacaos()
     {
-        return $this->hasMany(Pedido::class, ['prod_id' => 'pro_id']);
+        return $this->hasMany(ProdutoVariacao::class, ['produto_id' => 'ID']);
     }
-   
-    public function upload()
-    {
-       
-       
-        if ($this->validate()) {
-            ////die('validation passed1');
-            $files = glob('uploads/' . $this->pro_id . '_*');
-            foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
-            }
-
-            //die('validation passed2');
-            Foto::deleteAll(['prod_id' => $this->pro_id]); // Delete existing photos for the product
-            foreach ($this->fotos as $file) {
-                $filePath = 'uploads/' . $this->pro_id . '_' . $file->baseName . '.' . $file->extension;
-                if ($file->saveAs($filePath)) {
-                    // Save file information to the Foto model
-                    $fotoModel = new Foto();
-                    $fotoModel->prod_id = $this->pro_id;
-                    $fotoModel->path = $filePath;
-                    $fotoModel->capa= 0; // Default to not cover
-                    $fotoModel->save();
-                }
-            }
-          
-        } else {
-            die('validation failed');
-        }
-    }
-    
-
-
-
 
 }
