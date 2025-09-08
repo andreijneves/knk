@@ -52,7 +52,7 @@ $this->idProduto = $session->get('idProduto');
     public function actionIndex()
     {
         $searchModel = new ProdutoVariacaoSearch();
-        $dataProvider = $searchModel->search(['produto']);
+        $dataProvider = $searchModel->search($this->request->queryParams);
         $dataProvider->query->andWhere(['produto_id' => $this->idProduto]);
 
         return $this->render('index', [
@@ -83,9 +83,7 @@ $this->idProduto = $session->get('idProduto');
     public function actionCreate()
     {
         $model = new ProdutoVariacao();
-        if (!$this->idProduto){
-            throw new NotFoundHttpException('Produto não informado.');            
-        }
+                
 $model->produto_id = $this->idProduto;
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {

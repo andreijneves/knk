@@ -12,6 +12,8 @@ use yii\grid\GridView;
 
 $this->title = 'Fotos';
 $this->params['breadcrumbs'][] = $this->title;
+
+
 ?>
 <div class="foto-index">
 

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\Foto;
 use app\models\FotoSearch;
 use yii\web\Controller;
@@ -13,11 +14,20 @@ use yii\filters\VerbFilter;
  */
 class FotoController extends Controller
 {
+    public $idProduto = null;
     /**
      * @inheritDoc
      */
     public function behaviors()
     {
+        $this->layout = 'adm';
+        $this->enableCsrfValidation = false;   
+        
+          $session = Yii::$app->session;
+    if (\Yii::$app->request->get('idProduto')){
+        $session->set('idProduto', \Yii::$app->request->get('idProduto'));
+    }
+$this->idProduto = $session->get('idProduto');
         return array_merge(
             parent::behaviors(),
             [
@@ -40,6 +50,7 @@ class FotoController extends Controller
     {
         $searchModel = new FotoSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
+        $dataProvider->query->andWhere(['produto_id' => $this->idProduto]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -68,6 +79,8 @@ class FotoController extends Controller
     public function actionCreate()
     {
         $model = new Foto();
+            $model->produto_id = $this->idProduto;
+
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
