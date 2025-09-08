@@ -2,8 +2,9 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\ProdutoVariacao;
-use app\models\rodutoVariacaoSearch;
+use app\models\ProdutoVariacaoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -19,9 +20,16 @@ class ProdutoVariacaoController extends Controller
      */
     public function behaviors()
     {
-        $this->layout = 'adm';
+        $this->layout = 'adm';        
         $this->enableCsrfValidation = false;
-$this->idProduto = \Yii::$app->request->get('idProduto');
+  
+    $session = Yii::$app->session;
+    if (\Yii::$app->request->get('idProduto')){
+        $session->set('idProduto', \Yii::$app->request->get('idProduto'));
+    }
+$this->idProduto = $session->get('idProduto');
+
+      
 
         return array_merge(
             parent::behaviors(),
@@ -43,8 +51,9 @@ $this->idProduto = \Yii::$app->request->get('idProduto');
      */
     public function actionIndex()
     {
-        $searchModel = new rodutoVariacaoSearch();
-        $dataProvider = $searchModel->search($this->request->queryParams);
+        $searchModel = new ProdutoVariacaoSearch();
+        $dataProvider = $searchModel->search(['produto']);
+        $dataProvider->query->andWhere(['produto_id' => $this->idProduto]);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -74,7 +83,10 @@ $this->idProduto = \Yii::$app->request->get('idProduto');
     public function actionCreate()
     {
         $model = new ProdutoVariacao();
-
+        if (!$this->idProduto){
+            throw new NotFoundHttpException('Produto não informado.');            
+        }
+$model->produto_id = $this->idProduto;
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
@@ -99,6 +111,7 @@ $this->idProduto = \Yii::$app->request->get('idProduto');
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+$model->produto_id = $this->idProduto;
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
