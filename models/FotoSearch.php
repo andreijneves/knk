@@ -17,7 +17,7 @@ class FotoSearch extends Foto
     public function rules()
     {
         return [
-            [['fot_id', 'capa', 'prod_id'], 'integer'],
+            [['id', 'produto_id', 'capa'], 'integer'],
             [['path'], 'safe'],
         ];
     }
@@ -59,9 +59,9 @@ class FotoSearch extends Foto
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'fot_id' => $this->fot_id,
+            'id' => $this->id,
+            'produto_id' => $this->produto_id,
             'capa' => $this->capa,
-            'prod_id' => $this->prod_id,
         ]);
 
         $query->andFilterWhere(['like', 'path', $this->path]);

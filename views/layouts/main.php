@@ -51,9 +51,10 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     <li class="nav-item">
                         <a class="nav-link" href="/?r=site/contato">Contato</a>
                     </li>
-                       <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="#">fotos</a>
                     </li>
+                    <li class="nav-item"><a href="/?r=adm" class="nav-link">admin</a></li>
                 </ul>
             </div>
         </div>

@@ -10,7 +10,8 @@ use yii\grid\GridView;
 /** @var app\models\rodutoVariacaoSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Produto Variacaos';
+$this->title = 'Variações';
+$this->params['breadcrumbs'][] = ['label' => 'Produtos', 'url' => ['produto/index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="produto-variacao-index">

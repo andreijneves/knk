@@ -7,12 +7,12 @@ use Yii;
 /**
  * This is the model class for table "foto".
  *
- * @property int $fot_id
- * @property string $path
- * @property int $capa
- * @property int $prod_id
+ * @property int $id
+ * @property int|null $produto_id
+ * @property int|null $capa
+ * @property string|null $path
  *
- * @property Produto $prod
+ * @property Produto $produto
  */
 class Foto extends \yii\db\ActiveRecord
 {
@@ -32,10 +32,10 @@ class Foto extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['path', 'capa', 'prod_id'], 'required'],
-            [['capa', 'prod_id'], 'integer'],
+            [['produto_id', 'capa', 'path'], 'default', 'value' => null],
+            [['produto_id', 'capa'], 'integer'],
             [['path'], 'string', 'max' => 100],
-            [['prod_id'], 'exist', 'skipOnError' => true, 'targetClass' => Produto::class, 'targetAttribute' => ['prod_id' => 'pro_id']],
+            [['produto_id'], 'exist', 'skipOnError' => true, 'targetClass' => Produto::class, 'targetAttribute' => ['produto_id' => 'ID']],
         ];
     }
 
@@ -45,21 +45,21 @@ class Foto extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'fot_id' => 'Fot ID',
-            'path' => 'Path',
+            'id' => 'ID',
+            'produto_id' => 'Produto ID',
             'capa' => 'Capa',
-            'prod_id' => 'Prod ID',
+            'path' => 'Path',
         ];
     }
 
     /**
-     * Gets query for [[Prod]].
+     * Gets query for [[Produto]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getProd()
+    public function getProduto()
     {
-        return $this->hasOne(Produto::class, ['pro_id' => 'prod_id']);
+        return $this->hasOne(Produto::class, ['ID' => 'produto_id']);
     }
 
 }
