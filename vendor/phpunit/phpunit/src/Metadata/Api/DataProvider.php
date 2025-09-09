@@ -24,6 +24,7 @@ use PHPUnit\Metadata\DataProvider as DataProviderMetadata;
 use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Metadata\TestWith;
+use PHPUnit\Util\Test;
 use ReflectionMethod;
 use Throwable;
 
@@ -40,18 +41,38 @@ final readonly class DataProvider
      *
      * @throws InvalidDataProviderException
      *
-     * @return ?array<array<mixed>>
+     * @return ?array<ProvidedData>
      */
     public function providedData(string $className, string $methodName): ?array
     {
-        $dataProvider = MetadataRegistry::parser()->forMethod($className, $methodName)->isDataProvider();
-        $testWith     = MetadataRegistry::parser()->forMethod($className, $methodName)->isTestWith();
+        $metadataCollection = MetadataRegistry::parser()->forMethod($className, $methodName);
+        $dataProvider       = $metadataCollection->isDataProvider();
+        $testWith           = $metadataCollection->isTestWith();
 
         if ($dataProvider->isEmpty() && $testWith->isEmpty()) {
             return null;
         }
 
         if ($dataProvider->isNotEmpty()) {
+            if ($testWith->isNotEmpty()) {
+                $method = new ReflectionMethod($className, $methodName);
+
+                Event\Facade::emitter()->testTriggeredPhpunitWarning(
+                    new TestMethod(
+                        $className,
+                        $methodName,
+                        $method->getFileName(),
+                        $method->getStartLine(),
+                        Event\Code\TestDoxBuilder::fromClassNameAndMethodName(
+                            $className,
+                            $methodName,
+                        ),
+                        MetadataCollection::fromArray([]),
+                        Event\TestData\TestDataCollection::fromArray([]),
+                    ),
+                    'Mixing #[DataProvider*] and #[TestWith*] attributes is not supported, only the data provided by #[DataProvider*] will be used',
+                );
+            }
             $data = $this->dataProvidedByMethods($className, $methodName, $dataProvider);
         } else {
             $data = $this->dataProvidedByMetadata($testWith);
@@ -67,12 +88,15 @@ final readonly class DataProvider
         $testMethodNumberOfParameters = $method->getNumberOfParameters();
         $testMethodIsNonVariadic      = !$method->isVariadic();
 
-        foreach ($data as $key => $value) {
+        foreach ($data as $key => $providedData) {
+            $value = $providedData->value();
+
             if (!is_array($value)) {
                 throw new InvalidDataProviderException(
                     sprintf(
-                        'Data set %s is invalid, expected array but got %s',
+                        'Data set %s provided by %s is invalid, expected array but got %s',
                         $this->formatKey($key),
+                        $providedData->label(),
                         get_debug_type($value),
                     ),
                 );
@@ -93,8 +117,9 @@ final readonly class DataProvider
                         Event\TestData\TestDataCollection::fromArray([]),
                     ),
                     sprintf(
-                        'Data set %s has more arguments (%d) than the test method accepts (%d)',
+                        'Data set %s provided by %s has more arguments (%d) than the test method accepts (%d)',
                         $this->formatKey($key),
+                        $providedData->label(),
                         count($value),
                         $testMethodNumberOfParameters,
                     ),
@@ -111,17 +136,22 @@ final readonly class DataProvider
      *
      * @throws InvalidDataProviderException
      *
-     * @return array<array<mixed>>
+     * @return array<ProvidedData>
      */
     private function dataProvidedByMethods(string $className, string $methodName, MetadataCollection $dataProvider): array
     {
         $testMethod    = new Event\Code\ClassMethod($className, $methodName);
         $methodsCalled = [];
-        $result        = [];
+
+        /**
+         * @var array<ProvidedData> $result
+         */
+        $result = [];
 
         foreach ($dataProvider as $_dataProvider) {
             assert($_dataProvider instanceof DataProviderMetadata);
 
+            $providerLabel      = $_dataProvider->className() . '::' . $_dataProvider->methodName();
             $dataProviderMethod = new Event\Code\ClassMethod($_dataProvider->className(), $_dataProvider->methodName());
 
             Event\Facade::emitter()->dataProviderMethodCalled(
@@ -133,6 +163,18 @@ final readonly class DataProvider
 
             try {
                 $method = new ReflectionMethod($_dataProvider->className(), $_dataProvider->methodName());
+
+                if (Test::isTestMethod($method)) {
+                    Event\Facade::emitter()->testRunnerTriggeredPhpunitWarning(
+                        sprintf(
+                            'Method %s::%s() used by test method %s::%s() is also a test method',
+                            $_dataProvider->className(),
+                            $_dataProvider->methodName(),
+                            $className,
+                            $methodName,
+                        ),
+                    );
+                }
 
                 if (!$method->isPublic()) {
                     throw new InvalidDataProviderException(
@@ -175,16 +217,12 @@ final readonly class DataProvider
                     ...$methodsCalled,
                 );
 
-                throw new InvalidDataProviderException(
-                    $e->getMessage(),
-                    $e->getCode(),
-                    $e,
-                );
+                throw InvalidDataProviderException::forException($e, $providerLabel);
             }
 
             foreach ($data as $key => $value) {
                 if (is_int($key)) {
-                    $result[] = $value;
+                    $result[] = new ProvidedData($providerLabel, $value);
                 } elseif (is_string($key)) {
                     if (array_key_exists($key, $result)) {
                         Event\Facade::emitter()->dataProviderMethodFinished(
@@ -194,22 +232,26 @@ final readonly class DataProvider
 
                         throw new InvalidDataProviderException(
                             sprintf(
-                                'The key "%s" has already been defined by a previous data provider',
+                                'The key "%s" has already been defined by provider %s',
                                 $key,
+                                $result[$key]->label(),
                             ),
                         );
                     }
 
-                    $result[$key] = $value;
+                    $result[$key] = new ProvidedData($providerLabel, $value);
                 } else {
-                    // @codeCoverageIgnoreStart
+                    Event\Facade::emitter()->dataProviderMethodFinished(
+                        $testMethod,
+                        ...$methodsCalled,
+                    );
+
                     throw new InvalidDataProviderException(
                         sprintf(
                             'The key must be an integer or a string, %s given',
                             get_debug_type($key),
                         ),
                     );
-                    // @codeCoverageIgnoreEnd
                 }
             }
         }
@@ -223,14 +265,16 @@ final readonly class DataProvider
     }
 
     /**
-     * @return array<array<mixed>>
+     * @return array<ProvidedData>
      */
     private function dataProvidedByMetadata(MetadataCollection $testWith): array
     {
         $result = [];
 
-        foreach ($testWith as $_testWith) {
+        foreach ($testWith as $i => $_testWith) {
             assert($_testWith instanceof TestWith);
+
+            $providerLabel = sprintf('TestWith#%s attribute', $i);
 
             if ($_testWith->hasName()) {
                 $key = $_testWith->name();
@@ -238,15 +282,16 @@ final readonly class DataProvider
                 if (array_key_exists($key, $result)) {
                     throw new InvalidDataProviderException(
                         sprintf(
-                            'The key "%s" has already been defined by a previous TestWith attribute',
+                            'The key "%s" has already been defined by %s',
                             $key,
+                            $result[$key]->label(),
                         ),
                     );
                 }
 
-                $result[$key] = $_testWith->data();
+                $result[$key] = new ProvidedData($providerLabel, $_testWith->data());
             } else {
-                $result[] = $_testWith->data();
+                $result[] = new ProvidedData($providerLabel, $_testWith->data());
             }
         }
 

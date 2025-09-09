@@ -10,10 +10,16 @@
 namespace SebastianBergmann\Comparator;
 
 use function assert;
+use function spl_object_id;
 use function sprintf;
 use Closure;
 use ReflectionFunction;
 
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for sebastian/comparator
+ *
+ * @internal This class is not covered by the backward compatibility promise for sebastian/comparator
+ */
 final class ClosureComparator extends Comparator
 {
     public function accepts(mixed $expected, mixed $actual): bool
@@ -37,9 +43,8 @@ final class ClosureComparator extends Comparator
         throw new ComparisonFailure(
             $expected,
             $actual,
-            // no diff is required
-            '',
-            '',
+            'Closure Object #' . spl_object_id($expected) . ' ()',
+            'Closure Object #' . spl_object_id($actual) . ' ()',
             sprintf(
                 'Failed asserting that closure declared at %s:%d is equal to closure declared at %s:%d.',
                 $expectedReflector->getFileName(),

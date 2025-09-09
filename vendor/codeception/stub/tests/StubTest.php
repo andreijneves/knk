@@ -19,6 +19,7 @@ final class StubTest extends TestCase
 
     public function setUp(): void
     {
+        require_once $file = __DIR__. '/_data/DummyAbstractClass.php';
         require_once $file = __DIR__. '/_data/DummyOverloadableClass.php';
         require_once $file = __DIR__. '/_data/DummyClass.php';
         $this->dummy = new DummyClass(true);
@@ -273,11 +274,11 @@ final class StubTest extends TestCase
             [1, Stub\Expected::once()],
             [2, Stub\Expected::atLeastOnce()],
             [3, Stub\Expected::exactly(3)],
-            [1, Stub\Expected::once(fn(): bool => true), true],
-            [2, Stub\Expected::atLeastOnce(fn(): array => []), []],
-            [1, Stub\Expected::exactly(1, fn() => null), null],
-            [1, Stub\Expected::exactly(1, fn(): string => 'hello world!'), 'hello world!'],
-            [1, Stub\Expected::exactly(1, 'hello world!'), 'hello world!'],
+            [1, Stub\Expected::once(fn(): bool => true)],
+            [2, Stub\Expected::atLeastOnce(fn(): array => [])],
+            [1, Stub\Expected::exactly(1, fn() => null)],
+            [1, Stub\Expected::exactly(1, fn(): string => 'hello world!')],
+            [1, Stub\Expected::exactly(1, 'hello world!')],
         ];
     }
 
@@ -403,6 +404,17 @@ final class StubTest extends TestCase
     {
         $stub = Stub::makeEmpty(Countable::class, ['count' => 5]);
         $this->assertEquals(5, $stub->count());
+    }
+
+    public function testStubMakeEmptyAbstractClass()
+    {
+        if (version_compare(PHPUnitVersion::id(), '12', '>=')) {
+            $this->expectException(RuntimeException::class);
+            $this->expectExceptionMessage('PHPUnit 12 or greater does not allow to mock abstract classes anymore');
+        }
+
+        $stub = Stub::make('DummyAbstractClass');
+        $this->assertInstanceOf('DummyAbstractClass', $stub);
     }
 }
 

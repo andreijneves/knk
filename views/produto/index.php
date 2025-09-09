@@ -6,6 +6,10 @@ use yii\helpers\Url;
 use yii\grid\ActionColumn;
 use yii\grid\GridView;
 
+
+
+
+
 /** @var yii\web\View $this */
 /** @var app\models\ProdutoSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
@@ -13,6 +17,8 @@ use yii\grid\GridView;
 $this->title = 'Produtos';
 $this->params['breadcrumbs'][] = ['label' => 'Produtos', 'url' => ['produto/index']];
 $this->params['breadcrumbs'][] = $this->title;
+
+
 ?>
 <div class="produto-index">
 
@@ -38,13 +44,19 @@ $this->params['breadcrumbs'][] = $this->title;
             //'atualizado_em',
             [
     'class' => 'yii\grid\ActionColumn',
-    'template' => '{view} {update} {delete} {customButton}', // Add your custom button name here
+    'template' => '{view} {update} {delete} {variacoes} {fotos}', // nomes dos botões
     'buttons' => [
-        'customButton' => function ($url, $model, $key) {
-            // $url, $model, $key are automatically passed to the callback
+        'variacoes' => function ($url, $model, $key) {
             $customUrl = Url::to(['produto-variacao/index', 'idProduto' => $model->ID]);
-            return Html::a('<span>[v]</span>', $customUrl, [
-                'title' => 'Perform Custom Action',
+            return Html::a('<i class="bi bi-gear-fill"></i>', $customUrl, [
+                'title' => 'Variações do produto',
+                'data-pjax' => '0',
+            ]);
+        },
+        'fotos' => function ($url, $model, $key) {
+            $customUrl = Url::to(['foto/index', 'idProduto' => $model->ID]);
+            return Html::a('<i class="bi bi-camera-fill"></i>', $customUrl, [
+                'title' => 'fotos do produto',
                 'data-pjax' => '0',
             ]);
         },
@@ -55,3 +67,4 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 </div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">

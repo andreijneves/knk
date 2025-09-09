@@ -27,7 +27,11 @@ use PHPUnit\Event\TestSuite\Skipped as TestSuiteSkipped;
 use PHPUnit\Event\TestSuite\Sorted as TestSuiteSorted;
 use PHPUnit\Event\TestSuite\Started as TestSuiteStarted;
 use PHPUnit\Event\TestSuite\TestSuite;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Metadata\IgnorePhpunitWarnings;
+use PHPUnit\Metadata\Parser\Registry;
 use PHPUnit\TextUI\Configuration\Configuration;
+use SebastianBergmann\Comparator\Comparator;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -268,14 +272,21 @@ final class DispatchingEmitter implements Emitter
         );
     }
 
-    public function testRunnerStartedChildProcess(): void
+    public function childProcessStarted(): void
     {
         $this->dispatcher->dispatch(
             new TestRunner\ChildProcessStarted($this->telemetryInfo()),
         );
     }
 
-    public function testRunnerFinishedChildProcess(string $stdout, string $stderr): void
+    public function childProcessErrored(): void
+    {
+        $this->dispatcher->dispatch(
+            new TestRunner\ChildProcessErrored($this->telemetryInfo()),
+        );
+    }
+
+    public function childProcessFinished(string $stdout, string $stderr): void
     {
         $this->dispatcher->dispatch(
             new TestRunner\ChildProcessFinished(
@@ -360,7 +371,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -377,7 +388,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -395,7 +406,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -413,7 +424,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -570,7 +581,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $className
+     * @param class-string<Comparator> $className
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -999,11 +1010,28 @@ final class DispatchingEmitter implements Emitter
      */
     public function testTriggeredPhpunitWarning(Code\Test $test, string $message): void
     {
+        $ignoredByTest = false;
+
+        if ($test->isTestMethod()) {
+            assert($test instanceof TestMethod);
+
+            $metadata = Registry::parser()->forMethod($test->className(), $test->methodName())->isIgnorePhpunitWarnings()->asArray();
+
+            if (isset($metadata[0])) {
+                assert($metadata[0] instanceof IgnorePhpunitWarnings);
+
+                if ($metadata[0]->shouldIgnore($message)) {
+                    $ignoredByTest = true;
+                }
+            }
+        }
+
         $this->dispatcher->dispatch(
             new Test\PhpunitWarningTriggered(
                 $this->telemetryInfo(),
                 $test,
                 $message,
+                $ignoredByTest,
             ),
         );
     }
@@ -1183,7 +1211,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -1200,7 +1228,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -1218,7 +1246,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -1236,7 +1264,7 @@ final class DispatchingEmitter implements Emitter
     }
 
     /**
-     * @param class-string $testClassName
+     * @param class-string<TestCase> $testClassName
      *
      * @throws InvalidArgumentException
      * @throws UnknownEventTypeException
@@ -1305,6 +1333,13 @@ final class DispatchingEmitter implements Emitter
      */
     public function testRunnerTriggeredPhpunitDeprecation(string $message): void
     {
+        try {
+            if (TestMethodBuilder::fromCallStack()->metadata()->isIgnorePhpunitDeprecations()->isNotEmpty()) {
+                return;
+            }
+        } catch (NoTestCaseObjectOnCallStackException) {
+        }
+
         $this->dispatcher->dispatch(
             new TestRunner\DeprecationTriggered(
                 $this->telemetryInfo(),

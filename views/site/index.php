@@ -12,7 +12,7 @@ $this->title = 'KNK Training Center';
 
 <section class="hero-banner">
     <div class="container">
-        <h1 class="hero-title">Bem-vindo a Knk Traning!</h1>
+        <h1 class="hero-title">Bem-vindo a Knk Training!</h1>
         <p class="hero-subtitle">Sua vida saudável é nosso negócio</p>
         <button class="btn btn-primary btn-lg" onclick="location.href ='http://knktraining.com.br';">sobre nós</button>
     </div>

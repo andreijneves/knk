@@ -1,0 +1,80 @@
+{
+    "name": "yiirocks/yii-bootstrap-icons",
+    "description": "Yii3 Asset Bundle for the Bootstrap Icons",
+    "type": "library",
+    "keywords": [
+        "yii",
+        "yii3",
+        "extension",
+        "bootstrap",
+        "icons"
+    ],
+    "homepage": "https://www.yii.rocks/yii-bootstrap-icons/",
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Mr.42",
+            "homepage": "https://mr42.me/",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/YiiRocks/yii-bootstrap-icons/issues",
+        "source": "https://github.com/YiiRocks/yii-bootstrap-icons/tree/master"
+    },
+    "require": {
+        "php": ">=8.1",
+        "twbs/bootstrap-icons": "^1.13",
+        "yiisoft/assets": "^5.1"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "@stable",
+        "phpunit/phpunit": "@stable",
+        "vimeo/psalm": "@stable",
+        "yiisoft/config": "^1.6",
+        "yiisoft/di": "*",
+        "yiisoft/files": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "YiiRocks\\Yii\\Bootstrap\\Icons\\Assets\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "YiiRocks\\Yii\\Bootstrap\\Icons\\Tests\\": "tests"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "scripts": {
+        "php-cs-fixer": "@php vendor/bin/php-cs-fixer fix",
+        "phpunit": "@php vendor/bin/phpunit",
+        "psalm": "@php vendor/bin/psalm"
+    },
+    "scripts-descriptions": {
+        "php-cs-fixer": "Cleans to code with PHP Coding Standards Fixer.",
+        "phpunit": "PHPUnit - programmer-oriented testing framework.",
+        "psalm": "Psalm - static analysis tool for finding errors in PHP applications."
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        },
+        "config-plugin-options": {
+            "source-directory": "config"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "yiisoft/config": true
+        }
+    }
+}

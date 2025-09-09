@@ -11,6 +11,7 @@ use yii\grid\GridView;
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
 $this->title = 'Fotos';
+$this->params['breadcrumbs'][] = ['label' => 'Produtos', 'url' => ['produto/index']];
 $this->params['breadcrumbs'][] = $this->title;
 
 
@@ -20,7 +21,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create Foto', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Nova Foto', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>

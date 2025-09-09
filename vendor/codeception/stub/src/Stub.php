@@ -462,6 +462,10 @@ class Stub
             $methodName = $isAbstract ? 'getMockForAbstractClass' : 'getMock';
         }
 
+        if ($isAbstract && version_compare(PHPUnitVersion::series(), '12', '>=')) {
+            throw new RuntimeException('PHPUnit 12 or greater does not allow to mock abstract classes anymore');
+        }
+
         // PHPUnit 10.3 changed the namespace
         if (version_compare(PHPUnitVersion::series(), '10.3', '>=')) {
             $generatorClass = new Generator();
@@ -546,7 +550,6 @@ class Stub
                 }
             } elseif ($reflectionClass->hasProperty($param)) {
                 $reflectionProperty = $reflectionClass->getProperty($param);
-                $reflectionProperty->setAccessible(true);
                 $reflectionProperty->setValue($mock, $value);
             } else {
                 if ($reflectionClass->hasMethod('__set')) {

@@ -49,4 +49,40 @@ return array (
       '@yii/symfonymailer' => $vendorDir . '/yiisoft/yii2-symfonymailer/src',
     ),
   ),
+  'bestyii/yii2-bootstrap-icons' => 
+  array (
+    'name' => 'bestyii/yii2-bootstrap-icons',
+    'version' => '1.0.0.0',
+    'alias' => 
+    array (
+      '@bestyii/bootstrap/icons' => $vendorDir . '/bestyii/yii2-bootstrap-icons/src',
+    ),
+  ),
+  'yiisoft/yii2-jui' => 
+  array (
+    'name' => 'yiisoft/yii2-jui',
+    'version' => '2.0.7.0',
+    'alias' => 
+    array (
+      '@yii/jui' => $vendorDir . '/yiisoft/yii2-jui',
+    ),
+  ),
+  'kartik-v/yii2-krajee-base' => 
+  array (
+    'name' => 'kartik-v/yii2-krajee-base',
+    'version' => '3.0.5.0',
+    'alias' => 
+    array (
+      '@kartik/base' => $vendorDir . '/kartik-v/yii2-krajee-base/src',
+    ),
+  ),
+  'kartik-v/yii2-icons' => 
+  array (
+    'name' => 'kartik-v/yii2-icons',
+    'version' => 'dev-master',
+    'alias' => 
+    array (
+      '@kartik/icons' => $vendorDir . '/kartik-v/yii2-icons/src',
+    ),
+  ),
 );
