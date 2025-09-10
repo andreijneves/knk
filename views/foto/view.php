@@ -35,5 +35,6 @@ $this->params['breadcrumbs'][] = $this->title;
             'path',
         ],
     ]) ?>
+    <img src="<?=Yii::$app->request->baseUrl .  $model->path?>" alt="Foto" width="200px">
 
 </div>

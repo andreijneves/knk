@@ -73,6 +73,7 @@ class Foto extends \yii\db\ActiveRecord
             mkdir('uploads/' . $this->produto_id, 0777, true);
         }
         $img->saveAs($this->path);
+        chmod($this->path, 0777);
         $this->save(false);
         return true;
         
