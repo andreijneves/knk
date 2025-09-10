@@ -8,8 +8,7 @@ use yii\helpers\Html;
 use yii\bootstrap\BootstrapAsset; // Importe o asset principal do Bootstrap (CSS)
 use yii\bootstrap\BootstrapPluginAsset; // Importe o asset dos plugins JavaScript do Bootstrap
 
-use bestyii\bootstrap\icons\assets\BootstrapIconsAsset;
-BootstrapIconsAsset::register($this);
+
 
 AppAsset::register($this);
 

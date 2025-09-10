@@ -10,13 +10,13 @@ use yii\widgets\ActiveForm;
 
 <div class="foto-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin(['options' => ['enctype' => 'multipart/form-data']]); ?>
 
-    <?= $form->field($model, 'produto_id')->textInput() ?>
+    <?= $form->field($model, 'produto_id')->hiddenInput(['value'=> $this->context->idProduto])->label(false) ?>
 
-    <?= $form->field($model, 'capa')->textInput() ?>
+    <?= $form->field($model, 'capa')->checkbox() ?>
 
-    <?= $form->field($model, 'path')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'path')->fileInput(['multiple' => false, 'accept' => 'image/*']) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

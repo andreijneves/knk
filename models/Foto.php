@@ -17,6 +17,8 @@ use Yii;
 class Foto extends \yii\db\ActiveRecord
 {
 
+   
+    public $imageFiles;
 
     /**
      * {@inheritdoc}
@@ -62,4 +64,20 @@ class Foto extends \yii\db\ActiveRecord
         return $this->hasOne(Produto::class, ['ID' => 'produto_id']);
     }
 
+
+    public function upload($img)
+    {        
+
+        $this->path = 'uploads/' . $this->produto_id . '/' . $img->baseName . '.' . $img->extension;
+        if (!is_dir('uploads/' . $this->produto_id)) {
+            mkdir('uploads/' . $this->produto_id, 0777, true);
+        }
+        $img->saveAs($this->path);
+        $this->save(false);
+        return true;
+        
+
+    }
 }
+
+

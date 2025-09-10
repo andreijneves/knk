@@ -8,6 +8,8 @@ use app\models\FotoSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
+
 
 /**
  * FotoController implements the CRUD actions for Foto model.
@@ -84,7 +86,9 @@ $this->idProduto = $session->get('idProduto');
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
+            $img = UploadedFile::getInstance($model, 'path');
+            $model->upload($img);          
+            return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
             $model->loadDefaultValues();
@@ -107,6 +111,11 @@ $this->idProduto = $session->get('idProduto');
         $model = $this->findModel($id);
 
         if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
+             $model->imageFiles = UploadedFile::getInstance($model, 'imageFiles');
+
+            if ($model->upload($images,$this->idProduto)) {
+                return  ;
+            }
             return $this->redirect(['view', 'id' => $model->id]);
         }
 
